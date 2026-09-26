@@ -122,15 +122,16 @@ def record_commit(slot_id: str, slot_name: str, now_dt: datetime) -> tuple[str, 
     with open(ACTIVITY_LOG_FILE, "a", encoding="utf-8") as f:
         f.write(log_entry)
 
+    topic = selected_quote.get("topic", "DSA")
     # Format commit message
-    commit_msg = f"chore(pulse): {slot_name} [{slot_id} IST] - {today_str} ({selected_quote['author']})"
+    commit_msg = f"feat(dsa): {topic} - {slot_name} [{slot_id} IST] ({today_str})"
 
     # Update README.md
-    update_readme(state, today_str, ist_timestamp, slot_name, slot_id, quote_text)
+    update_readme(state, today_str, ist_timestamp, slot_name, slot_id, quote_text, topic)
 
     return commit_msg, quote_text
 
-def update_readme(state: dict, today_str: str, last_updated: str, last_slot_name: str, last_slot_id: str, quote: str):
+def update_readme(state: dict, today_str: str, last_updated: str, last_slot_name: str, last_slot_id: str, quote: str, topic: str = "DSA"):
     """Render a clean, modern README showing streak, status badges, and recent activity log."""
     total = state.get("total_commits", 0)
     streak = state.get("current_streak", 0)
@@ -155,7 +156,6 @@ def update_readme(state: dict, today_str: str, last_updated: str, last_slot_name
 
     recent_table_rows = []
     for entry in recent_entries:
-        # format: [2026-09-26 11:45:00 IST] Slot: Morning Slot (07:00) | Commits today: 1 | "Quote" — Author
         if "]" in entry and "|" in entry:
             parts = entry.split("|")
             ts_slot = parts[0].strip("[] ").split("] Slot: ")
@@ -169,14 +169,14 @@ def update_readme(state: dict, today_str: str, last_updated: str, last_slot_name
     recent_table_md = "\n".join(recent_table_rows) if recent_table_rows else "| — | No activity recorded yet | — |"
     slots_table_md = "\n".join(slots_display)
 
-    readme_content = f"""# 🟢 Git Auto Push Heatmap Engine
+    readme_content = f"""# 🧠 DAILY DSA & LEETCODE — Practice Tracker
 
-[![Streak](https://img.shields.io/badge/Current%20Streak-{streak}%20Days-brightgreen?style=for-the-badge&logo=github)](https://github.com/Chiranjibee18)
-[![Total Commits](https://img.shields.io/badge/Total%20Pushed-{total}-blue?style=for-the-badge)](https://github.com/Chiranjibee18)
-[![Timezone](https://img.shields.io/badge/Schedule-IST%20(UTC%2B5:30)-orange?style=for-the-badge)](https://github.com/Chiranjibee18)
-[![System](https://img.shields.io/badge/Daemon-systemd%20service-success?style=for-the-badge)](https://github.com/Chiranjibee18)
+[![Streak](https://img.shields.io/badge/Daily%20Grind%20Streak-{streak}%20Days-brightgreen?style=for-the-badge&logo=leetcode)](https://github.com/Chiranjibee18)
+[![Total Solved/Pushed](https://img.shields.io/badge/Total%20Sessions-{total}-blue?style=for-the-badge)](https://github.com/Chiranjibee18)
+[![Timezone](https://img.shields.io/badge/Timezone-IST%20(UTC%2B5:30)-orange?style=for-the-badge)](https://github.com/Chiranjibee18)
+[![Automated Sync](https://img.shields.io/badge/Sync-Active%20Daemon-success?style=for-the-badge)](https://github.com/Chiranjibee18)
 
-> Automated git activity synchronization system engineered to maintain an active GitHub contribution heatmap every single day without missing.
+> Dedicated daily repository recording consistent data structures, algorithms, and LeetCode problem patterns. Synchronized automatically every day across key practice sessions in Indian Standard Time (IST).
 
 ---
 
