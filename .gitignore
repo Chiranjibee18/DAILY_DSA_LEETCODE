@@ -6,6 +6,7 @@ __pycache__/
 # Logs
 logs/
 *.log
+!data/activity.log
 
 # Environments
 .env
