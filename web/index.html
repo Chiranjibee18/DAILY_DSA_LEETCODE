@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Heatmap Pulse — Auto Commit Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0d14;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-border: rgba(46, 160, 67, 0.2);
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+      --accent-green: #39d353;
+      --accent-green-glow: rgba(57, 211, 83, 0.35);
+      --accent-green-dark: #0e4429;
+      --accent-green-mid: #006d32;
+      --accent-green-light: #26a641;
+      --accent-cyan: #38bdf8;
+      --accent-purple: #a855f7;
+      --card-radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(38, 166, 65, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(14, 68, 41, 0.15) 0%, transparent 60%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 28px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .pulse-dot {
+      width: 14px;
+      height: 14px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 16px var(--accent-green);
+      animation: pulseAnim 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 10px var(--accent-green); }
+      50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 24px var(--accent-green); }
+    }
+
+    .brand h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff, #9be9a8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ist-clock-badge {
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      padding: 8px 16px;
+      background: rgba(38, 166, 65, 0.12);
+      border: 1px solid rgba(57, 211, 83, 0.3);
+      border-radius: 30px;
+      color: #9be9a8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* Top Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--card-radius);
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(57, 211, 83, 0.45);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-green), transparent);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      margin-top: 10px;
+      color: #fff;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .stat-sub {
+      font-size: 13px;
+      color: #39d353;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Slots Timeline */
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slots-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .slot-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--card-radius);
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .slot-card.active {
+      border-color: var(--accent-green);
+      background: rgba(14, 68, 41, 0.25);
+      box-shadow: 0 0 20px rgba(57, 211, 83, 0.15);
+    }
+
+    .slot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slot-time {
+      font-family: 'Fira Code', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .slot-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .slot-badge.completed {
+      background: rgba(57, 211, 83, 0.2);
+      color: #39d353;
+      border: 1px solid rgba(57, 211, 83, 0.4);
+    }
+
+    .slot-badge.pending {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .slot-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .slot-buffer {
+      font-size: 12px;
+      color: #58a6ff;
+      background: rgba(56, 189, 248, 0.08);
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    /* Heatmap Preview */
+    .heatmap-section {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--card-radius);
+      padding: 28px;
+      backdrop-filter: blur(16px);
+    }
+
+    .heatmap-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-template-rows: repeat(7, 13px);
+      grid-auto-flow: column;
+      grid-auto-columns: 13px;
+      gap: 4px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+    }
+
+    .cell {
+      width: 13px;
+      height: 13px;
+      border-radius: 3px;
+      background: #161b22;
+      transition: transform 0.15s ease;
+    }
+
+    .cell:hover {
+      transform: scale(1.4);
+      z-index: 10;
+    }
+
+    .cell.level-1 { background: var(--accent-green-dark); }
+    .cell.level-2 { background: var(--accent-green-mid); }
+    .cell.level-3 { background: var(--accent-green-light); }
+    .cell.level-4 { 
+      background: var(--accent-green); 
+      box-shadow: 0 0 6px var(--accent-green);
+    }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* CLI Controls & Commands */
+    .cli-section {
+      background: rgba(13, 17, 23, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--card-radius);
+      padding: 24px;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .cli-title {
+      font-size: 14px;
+      color: #58a6ff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cli-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+    }
+
+    .cmd-box {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .cmd-box code {
+      color: #9be9a8;
+    }
+
+    .cmd-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="pulse-dot"></div>
+      <h1>GitHub Heatmap Pulse</h1>
+    </div>
+    <div class="ist-clock-badge" id="clockBadge">
+      <span>🇮🇳 IST:</span>
+      <span id="istClock">--:--:--</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Stats Row -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Daily Guarantee</div>
+        <div class="stat-value">100% <span style="font-size: 16px; color: #39d353;">ACTIVE</span></div>
+        <div class="stat-sub">Zero missed days safeguard</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Daily Schedule Target</div>
+        <div class="stat-value">4 <span style="font-size: 16px; color: var(--text-muted);">Slots/Day</span></div>
+        <div class="stat-sub">07:00, 10:00, 12:00, 16:00 IST</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Offline Resilience</div>
+        <div class="stat-value">4 hrs <span style="font-size: 16px; color: #38bdf8;">BUFFER</span></div>
+        <div class="stat-sub">Auto-retries on connection</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Background Daemon</div>
+        <div class="stat-value">Systemd <span style="font-size: 16px; color: #39d353;">READY</span></div>
+        <div class="stat-sub">Runs on laptop boot/resume</div>
+      </div>
+    </div>
+
+    <!-- Scheduled Slots -->
+    <div>
+      <div class="section-title">
+        <span>⏱️ Daily IST Commit Slots</span>
+      </div>
+      <div class="slots-container">
+        <div class="slot-card" id="slot-0700">
+          <div class="slot-header">
+            <div class="slot-time">07:00 IST</div>
+            <div class="slot-badge pending" id="badge-0700">Scheduled</div>
+          </div>
+          <div class="slot-desc">🌅 Morning Slot (Fresh Day Kickstart)</div>
+          <div class="slot-buffer">Buffer window: 07:00 — 11:00 IST</div>
+        </div>
+
+        <div class="slot-card" id="slot-1000">
+          <div class="slot-header">
+            <div class="slot-time">10:00 IST</div>
+            <div class="slot-badge pending" id="badge-1000">Scheduled</div>
+          </div>
+          <div class="slot-desc">☕ Mid-Morning Slot (Deep Work Rhythm)</div>
+          <div class="slot-buffer">Buffer window: 10:00 — 14:00 IST</div>
+        </div>
+
+        <div class="slot-card" id="slot-1200">
+          <div class="slot-header">
+            <div class="slot-time">12:00 IST</div>
+            <div class="slot-badge pending" id="badge-1200">Scheduled</div>
+          </div>
+          <div class="slot-desc">☀️ Noon Slot (Peak Productivity)</div>
+          <div class="slot-buffer">Buffer window: 12:00 — 16:00 IST</div>
+        </div>
+
+        <div class="slot-card" id="slot-1600">
+          <div class="slot-header">
+            <div class="slot-time">16:00 IST</div>
+            <div class="slot-badge pending" id="badge-1600">Scheduled</div>
+          </div>
+          <div class="slot-desc">🌆 Afternoon Slot (Daily Wrap-up)</div>
+          <div class="slot-buffer">Buffer window: 16:00 — 20:00 IST</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Heatmap Preview Simulator -->
+    <div class="heatmap-section">
+      <div class="heatmap-header">
+        <div class="section-title" style="margin: 0;">
+          <span>🟢 Contribution Heatmap Grid (365 Days)</span>
+        </div>
+        <span style="font-size: 13px; color: #39d353; font-weight: 600;">Continuous Streak Active</span>
+      </div>
+
+      <div class="heatmap-grid" id="heatmapGrid">
+        <!-- Generated dynamically via JS -->
+      </div>
+
+      <div class="heatmap-legend">
+        <span>Less</span>
+        <div class="cell"></div>
+        <div class="cell level-1"></div>
+        <div class="cell level-2"></div>
+        <div class="cell level-3"></div>
+        <div class="cell level-4"></div>
+        <span>More</span>
+      </div>
+    </div>
+
+    <!-- Quick Commands -->
+    <div class="cli-section">
+      <div class="cli-title">
+        <span>💻 Essential Terminal Commands</span>
+      </div>
+      <div class="cli-grid">
+        <div class="cmd-box">
+          <code>python3 auto_push.py status</code>
+          <span class="cmd-desc">Check live status</span>
+        </div>
+        <div class="cmd-box">
+          <code>python3 auto_push.py run-once -f</code>
+          <span class="cmd-desc">Force commit & push now</span>
+        </div>
+        <div class="cmd-box">
+          <code>python3 auto_push.py install-service</code>
+          <span class="cmd-desc">Enable auto-start on boot</span>
+        </div>
+        <div class="cmd-box">
+          <code>journalctl --user -u git-auto-push -f</code>
+          <span class="cmd-desc">View live daemon logs</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Git Auto Push Heatmap Engine • Built for Chiranjibee18 • Guaranteed Green Contributions
+  </footer>
+
+  <script>
+    function updateISTClock() {
+      const now = new Date();
+      // Calculate IST (UTC + 5:30)
+      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const istTime = new Date(utcTime + (3600000 * 5.5));
+      
+      const hours = String(istTime.getHours()).padStart(2, '0');
+      const minutes = String(istTime.getMinutes()).padStart(2, '0');
+      const seconds = String(istTime.getSeconds()).padStart(2, '0');
+      document.getElementById('istClock').textContent = `${hours}:${minutes}:${seconds} IST`;
+
+      // Highlight active slot
+      const totalMinutes = istTime.getHours() * 60 + istTime.getMinutes();
+      const slots = [
+        { id: '0700', min: 7 * 60, max: 11 * 60 },
+        { id: '1000', min: 10 * 60, max: 14 * 60 },
+        { id: '1200', min: 12 * 60, max: 16 * 60 },
+        { id: '1600', min: 16 * 60, max: 20 * 60 },
+      ];
+
+      slots.forEach(s => {
+        const card = document.getElementById(`slot-${s.id}`);
+        if (totalMinutes >= s.min && totalMinutes <= s.max) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+    }
+
+    function renderHeatmap() {
+      const grid = document.getElementById('heatmapGrid');
+      grid.innerHTML = '';
+      const totalDays = 52 * 7; // 1 year grid
+
+      for (let i = 0; i < totalDays; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        
+        // Populate with vibrant green levels to show active consistency
+        const rand = Math.random();
+        if (rand > 0.6) {
+          cell.classList.add('level-4');
+        } else if (rand > 0.3) {
+          cell.classList.add('level-3');
+        } else if (rand > 0.1) {
+          cell.classList.add('level-2');
+        } else {
+          cell.classList.add('level-1');
+        }
+        grid.appendChild(cell);
+      }
+    }
+
+    setInterval(updateISTClock, 1000);
+    updateISTClock();
+    renderHeatmap();
+  </script>
+</body>
+</html>

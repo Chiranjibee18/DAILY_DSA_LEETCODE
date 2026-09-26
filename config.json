@@ -1,0 +1,32 @@
+{
+  "remote_url": "git@github.com:Chiranjibee18/git-auto-push.git",
+  "branch": "main",
+  "timezone": "Asia/Kolkata",
+  "schedule_slots": [
+    {
+      "id": "07:00",
+      "name": "Morning Slot",
+      "time": "07:00"
+    },
+    {
+      "id": "10:00",
+      "name": "Mid-Morning Slot",
+      "time": "10:00"
+    },
+    {
+      "id": "12:00",
+      "name": "Noon Slot",
+      "time": "12:00"
+    },
+    {
+      "id": "16:00",
+      "name": "Afternoon Slot",
+      "time": "16:00"
+    }
+  ],
+  "retry_buffer_hours": 4,
+  "check_interval_seconds": 60,
+  "ensure_daily_commit": true,
+  "commit_author_name": "Chiranjibee18",
+  "commit_author_email": "chiranjibeepanigrahi@gmail.com"
+}
