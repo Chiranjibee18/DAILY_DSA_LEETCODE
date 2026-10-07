@@ -30,3 +30,4 @@
 [2026-10-05 12:00:15 IST] Slot: Noon Slot (12:00) | Commits today: 3 | "Merge Intervals: Sort by start time, then iteratively compare each interval's start with the current interval's end." — LeetCode Patterns
 [2026-10-05 16:00:04 IST] Slot: Afternoon Slot (16:00) | Commits today: 4 | "Backtracking: Systematically explore combinatorial state spaces by making choices, recurring, and undoing choices." — Algorithm Design
 [2026-10-06 00:00:00 IST] Slot: Daily Catch-up (Morning Slot) (07:00) | Commits today: 1 | "Binary Search on Answer: Whenever the search space is monotonic (feasible/infeasible), binary search finds the optimal boundary in O(log N)." — Algorithm Design
+[2026-10-08 02:17:17 IST] Slot: Daily Catch-up (Morning Slot) (07:00) | Commits today: 1 | "Breadth-First Search finds the shortest path in unweighted graphs; DFS explores connected components and topological orders." — Graph Theory
